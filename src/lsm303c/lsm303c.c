@@ -53,14 +53,22 @@ uint8_t lsm303c_accel_read(uint8_t addr) {
 
 void lsm303c_mag_write(uint8_t addr, uint8_t val) {
   bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
-  bcm2835_spi_transfer(addr & 0b01111111);
-  bcm2835_spi_transfer(val);
+  char *buf = malloc(2);
+  *buf = addr & 0b01111111;
+  *(buf+1) = val;
+  bcm2835_spi_writenb(buf, 2);
+  free(buf);
 }
 
 uint8_t lsm303c_mag_read(uint8_t addr) {
   bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
-  bcm2835_spi_transfer(addr | 0b10000000);
-  return bcm2835_spi_transfer(0x00);
+  char *buf = malloc(2);
+  *buf = addr | 0b10000000;
+  *(buf+1) = 0xFF;
+  bcm2835_spi_transfern(buf, 2);
+  uint8_t val = *(buf+1);
+  free(buf);
+  return val;
 }
 
 void lsm303c_accel_set(uint8_t addr, uint8_t bits, uint8_t val) {
