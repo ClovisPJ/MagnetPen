@@ -35,7 +35,7 @@ void lsm303c_accel_write(uint8_t addr, uint8_t val) {
   char *buf = malloc(2);
   *buf = addr & 0b01111111;
   *(buf+1) = val;
-  bcm2835_spi_writeb(buf, 2);
+  bcm2835_spi_writenb(buf, 2);
   free(buf);
 }
 
