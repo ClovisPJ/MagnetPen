@@ -22,14 +22,31 @@ void lsm303c_close() {
   bcm2835_close();
 }
 
-uint8_t bcm2835_i2c_read(uint8_t addr, uint8_t subaddr) {
+uint8_t lsm303c_read(uint8_t addr, uint8_t reg_addr) {
   bcm2835_i2c_setSlaveAddress(addr);
-  bcm2835_i2c_write(&subaddr, 1);
-  return;
+  uint8_t *buffer = malloc(1);
+  bcm2835_i2c_read_register_rs(reg_addr, buffer, 1);
+  return buffer;
 }
 
-void bcm2835_i2c_write(uint8_t addr, uint8_t subaddr, uint8_t data) {
-  bcm2835_i2c_setSlaveAddress(addr);
-  bcm2835_i2c_write(&subaddr, 1);
-  bcm2835_i2c_write(&data, 1);
+void lsm303c_write(uint8_t slv_addr, uint8_t reg_addr, uint8_t data) {
+  bcm2835_i2c_setSlaveAddress(slv_addr);
+  uint8_t *buffer = malloc(2);
+  *buffer = reg_addr;
+  *(buffer+1) = data;
+  bcm2835_i2c_write(buffer, 2);
+  free(buffer);
+}
+
+uint8_t lsm303c_accel_read(uint8_t addr) {
+  return lsm303c_read(0x1d, addr);
+}
+uint8_t lsm303c_mag_read(uint8_t addr) {
+  return lsm303c_read(0x1e, addr);
+}
+void lsm303c_accel_write(uint8_t addr, uint8_t val) {
+  lsm303c_write(0x1d, addr, val);
+}
+void lsm303c_mag_write(uint8_t addr, uint8_t val) {
+  lsm303c_write(0x1e, addr, val);
 }
