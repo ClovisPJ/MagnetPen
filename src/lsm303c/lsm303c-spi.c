@@ -4,7 +4,7 @@
 
 #include <bcm2835.h>
 
-#include "lsm303c.h"
+#include "lsm303c-spi.h"
 
 void lsm303c_begin() {
   if (!bcm2835_init()) {

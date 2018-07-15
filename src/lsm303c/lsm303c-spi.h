@@ -2,7 +2,6 @@
 #define LSM303C_H
 
 #include <stdint.h>
-#include "lsm303c.h"
 
 #define SENSITIVITY_ACC 0.06103515625   // LSB/mg
 #define SENSITIVITY_MAG 0.00048828125   // LSB/Ga
