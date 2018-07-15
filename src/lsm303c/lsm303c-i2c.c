@@ -26,7 +26,9 @@ uint8_t lsm303c_read(uint8_t addr, uint8_t reg_addr) {
   bcm2835_i2c_setSlaveAddress(addr);
   uint8_t *buffer = malloc(1);
   bcm2835_i2c_read_register_rs(&reg_addr, buffer, 1);
-  return *buffer;
+  uint8_t val = *buffer;
+  free(buffer);
+  return val;
 }
 
 void lsm303c_write(uint8_t slv_addr, uint8_t reg_addr, uint8_t data) {

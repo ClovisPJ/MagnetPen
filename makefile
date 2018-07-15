@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-lbcm2835
+CFLAGS=-lbcm2835 -g
 
 read: src/read.c src/lsm303c/lsm303c.c src/lsm303c/lsm303c-i2c.c
 	$(CC) -o read src/read.c src/lsm303c/lsm303c.c src/lsm303c/lsm303c-i2c.c $(CFLAGS)
