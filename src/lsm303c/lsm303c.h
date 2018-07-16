@@ -7,10 +7,12 @@
 #define SENSITIVITY_MAG 0.00048828125   // LSB/Ga
 
 struct vector {
-  uint16_t x;
-  uint16_t y;
-  uint16_t z;
+  float x;
+  float y;
+  float z;
 };
+
+#define ACC                                  0x1d
 
 #define ACC_CTRL_REG1                        0x20
   #define ACC_CTRL_REG1_RES                  0b10000000
@@ -60,6 +62,8 @@ struct vector {
   #define ACC_STATUS_XDA                     0b00000001
 
 
+#define MAG                                  0x1e
+
 #define MAG_CTRL_REG1                        0x20
   #define MAG_CTRL_REG1_XYOM                 0b01100000
     #define MAG_CTRL_REG1_XYOM_LOW           0b00000000
@@ -104,14 +108,12 @@ struct vector {
   #define MAG_STATUS_YDA                     0b00000010
   #define MAG_STATUS_XDA                     0b00000001
 
-void lsm303c_accel_set(uint8_t addr, uint8_t bits, uint8_t val);
-void lsm303c_mag_set(uint8_t addr, uint8_t bits, uint8_t val);
-uint8_t lsm303c_accel_get(uint8_t addr, uint8_t bits);
-uint8_t lsm303c_mag_get(uint8_t addr, uint8_t bits);
+void lsm303c_set(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t bits, uint8_t val);
+uint8_t lsm303c_get(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t bits);
 
-void lsm303c_settings();
-struct vector* lsm303c_accel_sample();
-struct vector* lsm303c_mag_sample();
-float lsm303c_mag_temp_sample();
+void lsm303c_settings(uint8_t *dev);
+struct vector* lsm303c_accel_sample(uint8_t dev);
+struct vector* lsm303c_mag_sample(uint8_t dev);
+float lsm303c_mag_temp_sample(uint8_t dev);
 
 #endif
