@@ -17,7 +17,7 @@ void lsm303c_begin(uint8_t *dev) {
   bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_2500);
   for (;dev != '\0'; dev++) {
     bcm2835_gpio_fsel(*dev, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_write(*dev, HIGH);
+    bcm2835_gpio_write(*dev, LOW);
   }
 }
 
@@ -29,9 +29,9 @@ void lsm303c_close() {
 uint8_t lsm303c_read(uint8_t dev, uint8_t addr, uint8_t reg_addr) {
   bcm2835_i2c_setSlaveAddress(addr);
   uint8_t *buffer = malloc(1);
-  bcm2835_gpio_write(dev, LOW);
-  bcm2835_i2c_read_register_rs(&reg_addr, buffer, 1);
   bcm2835_gpio_write(dev, HIGH);
+  bcm2835_i2c_read_register_rs(&reg_addr, buffer, 1);
+  bcm2835_gpio_write(dev, LOW);
   uint8_t val = *buffer;
   free(buffer);
   return val;
@@ -42,8 +42,8 @@ void lsm303c_write(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t data) {
   uint8_t *buffer = malloc(2);
   *buffer = reg_addr;
   *(buffer+1) = data;
-  bcm2835_gpio_write(dev, LOW);
-  bcm2835_i2c_write(buffer, 2);
   bcm2835_gpio_write(dev, HIGH);
+  bcm2835_i2c_write(buffer, 2);
+  bcm2835_gpio_write(dev, LOW);
   free(buffer);
 }
