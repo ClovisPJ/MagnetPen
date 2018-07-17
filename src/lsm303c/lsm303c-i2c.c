@@ -15,7 +15,7 @@ void lsm303c_begin(uint8_t *dev) {
     return;
   }
   bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_2500);
-  for (;dev != '\0'; dev++) {
+  for (int i = 0; dev[i] != '\0'; i++) {
     bcm2835_gpio_fsel(*dev, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_write(*dev, LOW);
   }

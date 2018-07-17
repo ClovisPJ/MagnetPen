@@ -13,12 +13,9 @@ int main () {
   dev[4] = '\0';
   lsm303c_settings(dev);
   while (1) {
-    struct vector* vec1 = lsm303c_accel_sample(dev[0]);
-    struct vector* vec2 = lsm303c_mag_sample(dev[0]);
-    printf("[%f, %f, %f]\n", vec1->x, vec1->y, vec1->z);
-    printf("                                 [%f, %f, %f]\n", vec2->x, vec2->y, vec2->z);
-    free(vec1);
-    free(vec2);
+    struct vector* vec = lsm303c_mag_sample(dev[0]);
+    printf("[%f, %f, %f]\n", vec->x, vec->y, vec->z);
+    free(vec);
     usleep(100000);
   }
 }
