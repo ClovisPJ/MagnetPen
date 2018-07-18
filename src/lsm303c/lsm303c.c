@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "lsm303c-i2c.h"
+#include "lsm303c-spi.h"
 #include "lsm303c.h"
 
 void lsm303c_set(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t bits, uint8_t val) {
@@ -19,8 +19,8 @@ void lsm303c_settings(uint8_t *dev) {
   lsm303c_begin(dev);
 
   for (int i = 0; dev[i] != '\0'; i++) {
-  //  lsm303c_set(dev[i], ACC, ACC_CTRL_REG4, ACC_CTRL_REG4_SPI, ACC_CTRL_REG4_SPI_RW);
-  //  lsm303c_set(dev[i], ACC, ACC_CTRL_REG4, ACC_CTRL_REG4_I2C, ACC_CTRL_REG4_I2C_OFF);
+    lsm303c_set(dev[i], ACC, ACC_CTRL_REG4, ACC_CTRL_REG4_SPI, ACC_CTRL_REG4_SPI_RW);
+    lsm303c_set(dev[i], ACC, ACC_CTRL_REG4, ACC_CTRL_REG4_I2C, ACC_CTRL_REG4_I2C_OFF);
 
     lsm303c_set(dev[i], ACC, ACC_CTRL_REG1, ACC_CTRL_REG1_RES, ACC_CTRL_REG1_RES_LOWRES);
     lsm303c_set(dev[i], ACC, ACC_CTRL_REG1, ACC_CTRL_REG1_ODR, ACC_CTRL_REG1_ODR_100HZ);
@@ -29,8 +29,8 @@ void lsm303c_settings(uint8_t *dev) {
     lsm303c_set(dev[i], ACC, ACC_CTRL_REG1, ACC_CTRL_REG1_XEN, ACC_CTRL_REG1_XEN_ON);
     lsm303c_set(dev[i], ACC, ACC_CTRL_REG4, ACC_CTRL_REG4_FS, ACC_CTRL_REG4_FS_8G);
   
-  //  lsm303c_set(dev[i], MAG, MAG_CTRL_REG3, MAG_CTRL_REG3_I2C, MAG_CTRL_REG3_I2C_ON);
-  //  lsm303c_set(dev[i], MAG, MAG_CTRL_REG3, MAG_CTRL_REG3_SPI, MAG_CTRL_REG3_SPI_RW);
+    lsm303c_set(dev[i], MAG, MAG_CTRL_REG3, MAG_CTRL_REG3_I2C, MAG_CTRL_REG3_I2C_ON);
+    lsm303c_set(dev[i], MAG, MAG_CTRL_REG3, MAG_CTRL_REG3_SPI, MAG_CTRL_REG3_SPI_RW);
 
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_XYOM, MAG_CTRL_REG1_XYOM_HIGH);
     //lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_TEMP, MAG_CTRL_REG1_TEMP_ON);
