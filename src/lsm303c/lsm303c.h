@@ -65,14 +65,23 @@ struct vector {
 #define MAG                                  0x1e
 
 #define MAG_CTRL_REG1                        0x20
+  #define MAG_CTRL_REG1_TEMP                 0b10000000
+    #define MAG_CTRL_REG1_TEMP_ON            0b00000000
+    #define MAG_CTRL_REG1_TEMP_OFF           0b10000000
   #define MAG_CTRL_REG1_XYOM                 0b01100000
     #define MAG_CTRL_REG1_XYOM_LOW           0b00000000
     #define MAG_CTRL_REG1_XYOM_MED           0b00100000
     #define MAG_CTRL_REG1_XYOM_HIGH          0b01000000
     #define MAG_CTRL_REG1_XYOM_ULTRA         0b01100000
-  #define MAG_CTRL_REG1_TEMP                 0b10000000
-    #define MAG_CTRL_REG1_TEMP_ON            0b00000000
-    #define MAG_CTRL_REG1_TEMP_OFF           0b10000000
+  #define MAG_CTRL_REG1_OUTPUTRATE           0b00011100
+    #define MAG_CTRL_REG1_OUTPUTRATE_0_625   0b00000000
+    #define MAG_CTRL_REG1_OUTPUTRATE_1_25    0b00000100
+    #define MAG_CTRL_REG1_OUTPUTRATE_2_5     0b00001000
+    #define MAG_CTRL_REG1_OUTPUTRATE_5       0b00001100
+    #define MAG_CTRL_REG1_OUTPUTRATE_10      0b00010000
+    #define MAG_CTRL_REG1_OUTPUTRATE_20      0b00010100
+    #define MAG_CTRL_REG1_OUTPUTRATE_40      0b00011000
+    #define MAG_CTRL_REG1_OUTPUTRATE_80      0b00011100
 #define MAG_CTRL_REG2                        0x21
   #define MAG_CTRL_REG2_FS                   0b01100000
     #define MAG_CTRL_REG2_FS_16G             0b01100000

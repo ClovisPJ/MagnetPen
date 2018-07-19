@@ -15,13 +15,13 @@ void lsm303c_begin(uint8_t *dev) {
     return;
   }
   bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
-  bcm2835_spi_setDataMode(BCM2835_SPI_MODE3);                   // The default
+  bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                   // The default
   bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_65536); // The default
   //bcm2835_spi_chipSelect(BCM2835_SPI_CS0);                      // The default
   //bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);      // the default
   for (int i = 0; dev[i] != '\0'; i++) {
-    bcm2835_gpio_fsel(*dev, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_write(*dev, HIGH);
+    bcm2835_gpio_fsel(dev[i], BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_write(dev[i], HIGH);
   }
 }
 
@@ -33,14 +33,28 @@ void lsm303c_close() {
 uint8_t lsm303c_read(uint8_t dev, uint8_t addr, uint8_t reg_addr) {
   char *buf = malloc(2);
   *buf = reg_addr | 0b10000000;
-  *(buf+1) = 0xFF;
+  *(buf+1) = 0x00;
   bcm2835_gpio_write(dev, LOW);
   bcm2835_spi_transfern(buf, 2);
   bcm2835_gpio_write(dev, HIGH);
   uint8_t val = *(buf+1);
   free(buf);
+  usleep(2000);
   return val;
 }
+
+/*
+uint8_t lsm303c_read(uint8_t dev, uint8_t addr, uint8_t reg_addr) {
+  char *buf = malloc(1);
+  uint8_t val;
+  *buf = reg_addr | 0b10000000;
+  bcm2835_gpio_write(dev, LOW);
+  bcm2835_spi_writenb(buf, 1);
+  bcm2835_spi_transfernb(, &val, 1);
+  bcm2835_gpio_write(dev, HIGH);
+  free(buf);
+  return val;
+}*/
 
 void lsm303c_write(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t data) {
   char *buf = malloc(2);
@@ -50,4 +64,5 @@ void lsm303c_write(uint8_t dev, uint8_t addr, uint8_t reg_addr, uint8_t data) {
   bcm2835_spi_writenb(buf, 2);
   bcm2835_gpio_write(dev, HIGH);
   free(buf);
+  usleep(2000);
 }
