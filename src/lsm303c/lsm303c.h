@@ -3,14 +3,10 @@
 
 #include <stdint.h>
 
+#include <vector.h>
+
 #define SENSITIVITY_ACC 0.06103515625   // LSB/mg
 #define SENSITIVITY_MAG 0.00048828125   // LSB/Ga
-
-struct vector {
-  float x;
-  float y;
-  float z;
-};
 
 #define ACC                                  0x1d
 

@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include <vector.h>
+
 #include "lsm303c-spi.h"
 #include "lsm303c.h"
 
