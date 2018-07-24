@@ -6,7 +6,7 @@
 #include "lsm303c/lsm303c.h"
 
 int main () {
-  uint8_t *dev = malloc(1);
+  uint8_t *dev = malloc(5);
   dev[0] = RPI_BPLUS_GPIO_J8_11;
   dev[1] = RPI_BPLUS_GPIO_J8_13;
   dev[2] = RPI_BPLUS_GPIO_J8_15;
@@ -14,42 +14,85 @@ int main () {
   dev[4] = '\0';
   lsm303c_settings(dev);
 
-  while (1) {
-    vector* vec1 = lsm303c_mag_sample(dev[0]);
-    vector* vec2 = lsm303c_mag_sample(dev[1]);
-    vector* vec3 = lsm303c_mag_sample(dev[2]);
-    vector* vec4 = lsm303c_mag_sample(dev[3]);
+  float smoothing = 0.025;
 
-    vector* avg = malloc(sizeof(vector));
-    vector* vec1_diff = malloc(sizeof(vector));
-    vector* vec2_diff = malloc(sizeof(vector));
-    vector* vec3_diff = malloc(sizeof(vector));
-    vector* vec4_diff = malloc(sizeof(vector));
-    vector* pos_vec = malloc(sizeof(vector));
-    power3(vec1);
-    power3(vec2);
-    power3(vec3);
-    power3(vec4);
-    add4(avg, vec1, vec2, vec3, vec4);
-    root3(avg);
-    scale(avg, 0.25f);
-    sub(vec1_diff, vec1, avg);
-    sub(vec2_diff, vec2, avg);
-    sub(vec3_diff, vec3, avg);
-    sub(vec4_diff, vec4, avg);
-    add4(pos_vec, vec1_diff, vec2_diff, vec3_diff, vec4_diff);
+  vector* avg;
+  vector* pos_vec;
+
+  vector** vec_raw = malloc(4 * sizeof(vector*));
+  vector** vec_temp = malloc(4 * sizeof(vector*));
+  vector** vec_smooth = malloc(4 * sizeof(vector*));
+
+  while (1) {
+
+    // DATA COLLECTION
+
+    vec_raw[0] = lsm303c_mag_sample(dev[0]);
+    vec_raw[1] = lsm303c_mag_sample(dev[1]);
+    vec_raw[2] = lsm303c_mag_sample(dev[2]);
+    vec_raw[3] = lsm303c_mag_sample(dev[3]);
+    
+    // LOW PASS FILTER
+
+    if (vec_smooth[0] == NULL) {
+      vec_smooth[0] = copy(vec_raw[0]);
+      vec_smooth[1] = copy(vec_raw[1]);
+      vec_smooth[2] = copy(vec_raw[2]);
+      vec_smooth[3] = copy(vec_raw[3]);
+    }
+
+    vec_temp[0] = scale ( sub(vec_smooth[0], vec_raw[0]), smoothing);
+    vec_temp[1] = scale ( sub(vec_smooth[1], vec_raw[1]), smoothing);
+    vec_temp[2] = scale ( sub(vec_smooth[2], vec_raw[2]), smoothing);
+    vec_temp[3] = scale ( sub(vec_smooth[3], vec_raw[3]), smoothing);
+    vec_smooth[0] = sub(vec_smooth[0], vec_temp[0]);
+    vec_smooth[1] = sub(vec_smooth[1], vec_temp[1]);
+    vec_smooth[2] = sub(vec_smooth[2], vec_temp[2]);
+    vec_smooth[3] = sub(vec_smooth[3], vec_temp[3]);
+    free(vec_raw[0]);
+    free(vec_raw[1]);
+    free(vec_raw[2]);
+    free(vec_raw[3]);
+    free(vec_temp[0]);
+    free(vec_temp[1]);
+    free(vec_temp[2]);
+    free(vec_temp[3]);
+    vec_temp[0] = copy(vec_smooth[0]);
+    vec_temp[1] = copy(vec_smooth[1]);
+    vec_temp[2] = copy(vec_smooth[2]);
+    vec_temp[3] = copy(vec_smooth[3]);
+
+    /* LOW PASS FILTERED DATA
+    print(vec_smooth[0]);
+    print(vec_smooth[1]);
+    print(vec_smooth[2]);
+    print(vec_smooth[3]);
+    */
+
+    // POSITION CALCULATION
+
+    avg = scale( root3( add(4, power3(vec_temp[0]), power3(vec_temp[1]), power3(vec_temp[2]), power3(vec_temp[3]))) , 0.25f);
+    vector **vec_diff = malloc(4 * sizeof(vector*));
+    // NB vec_temp's have been cubed
+    vec_diff[0] = sub(vec_temp[0], avg);
+    vec_diff[1] = sub(vec_temp[1], avg);
+    vec_diff[2] = sub(vec_temp[2], avg);
+    vec_diff[3] = sub(vec_temp[3], avg);
+    free(avg);
+    pos_vec = add(4, vec_diff[0], vec_diff[1], vec_diff[2], vec_diff[3]);
+    free(vec_diff[0]);
+    free(vec_diff[1]);
+    free(vec_diff[2]);
+    free(vec_diff[3]);
 
     print(pos_vec);
+    
+    free(pos_vec);
 
-    free(vec1);
-    free(vec2);
-    free(vec3);
-    free(vec4);
-    free(avg)
-    free(vec1_diff)
-    free(vec2_diff)
-    free(vec3_diff)
-    free(vec4_diff)
-    free(pos_vec)
   }
+  free(vec_smooth[0]);
+  free(vec_smooth[1]);
+  free(vec_smooth[2]);
+  free(vec_smooth[3]);
+  free(dev);
 }
