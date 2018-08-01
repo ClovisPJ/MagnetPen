@@ -5,6 +5,8 @@
 #include <vector.h>
 #include "lsm303c/lsm303c.h"
 
+#define ALPHA 0.025
+
 int main () {
   uint8_t *dev = malloc(5);
   dev[0] = RPI_BPLUS_GPIO_J8_11;
@@ -14,85 +16,46 @@ int main () {
   dev[4] = '\0';
   lsm303c_settings(dev);
 
-  float smoothing = 0.025;
-
-  vector* avg;
-  vector* pos_vec;
-
   vector** vec_raw = malloc(4 * sizeof(vector*));
-  vector** vec_temp = malloc(4 * sizeof(vector*));
+  vector** vec_cal = malloc(4 * sizeof(vector*));
   vector** vec_smooth = malloc(4 * sizeof(vector*));
 
   while (1) {
 
-    // DATA COLLECTION
+    for (int i = 0; dev[i] != '\0'; i++) {
+      // DATA COLLECTION
+      vec_raw[i] = lsm303c_mag_sample(dev[i]);
 
-    vec_raw[0] = lsm303c_mag_sample(dev[0]);
-    vec_raw[1] = lsm303c_mag_sample(dev[1]);
-    vec_raw[2] = lsm303c_mag_sample(dev[2]);
-    vec_raw[3] = lsm303c_mag_sample(dev[3]);
-    
-    // LOW PASS FILTER
+      // CALIBRATE
+      vec_cal[i] = new();
+      vec_smooth[i] = new();
 
-    if (vec_smooth[0] == NULL) {
-      vec_smooth[0] = copy(vec_raw[0]);
-      vec_smooth[1] = copy(vec_raw[1]);
-      vec_smooth[2] = copy(vec_raw[2]);
-      vec_smooth[3] = copy(vec_raw[3]);
+      vec_raw[i]->x =* 100000/1100;  vec_raw[i]->x =- 617.106577;
+      vec_raw[i]->y =* 100000/1100;  vec_raw[i]->y =- 3724.617984;
+      vec_raw[i]->z =* 100000/980;   vec_raw[i]->z =- 16432.772031;
+      vec_cal[i]->x = 0.982945*vec_raw[i]->x + 0.012083*vec_raw[i]->y + 0.014055*vec_raw[i]->z;
+      vec_cal[i]->y = 0.012083*vec_raw[i]->x + 0.964757*vec_raw[i]->y + 0.001436*vec_raw[i]->z;
+      vec_cal[i]->z = 0.014055*vec_raw[i]->x + 0.001436*vec_raw[i]->y + 0.952889*vec_raw[i]->z;
+      float norm = sqrt(vec_cal[i]->x*vec_cal[i]->x + vec_cal[i]->y*vec_cal[i]->y + vec_cal[i]->z*vec_cal[i]->z);
+      vec_cal[i]->x /= norm;
+      vec_cal[i]->y /= norm;
+      vec_cal[i]->z /= norm;
+      vec_cal[i]->y *= -1;
+      vec_cal[i]->z *= -1;
+
+      vec_smooth[i]->x = vec_cal[i]->x * ALPHA + (vec_smooth[i]->x * (1 - ALPHA));
+      vec_smooth[i]->y = vec_cal[i]->y * ALPHA + (vec_smooth[i]->y * (1 - ALPHA));
+      vec_smooth[i]->z = vec_cal[i]->z * ALPHA + (vec_smooth[i]->z * (1 - ALPHA));
+
+      // PRINT
+      print(vec_smooth[i]);
+
+      // FREE
+      free(vec_raw[i]);
+      free(vec_cal[i]);
+      free(vec_smooth[i]);
     }
 
-    vec_temp[0] = scale ( sub(vec_smooth[0], vec_raw[0]), smoothing);
-    vec_temp[1] = scale ( sub(vec_smooth[1], vec_raw[1]), smoothing);
-    vec_temp[2] = scale ( sub(vec_smooth[2], vec_raw[2]), smoothing);
-    vec_temp[3] = scale ( sub(vec_smooth[3], vec_raw[3]), smoothing);
-    vec_smooth[0] = sub(vec_smooth[0], vec_temp[0]);
-    vec_smooth[1] = sub(vec_smooth[1], vec_temp[1]);
-    vec_smooth[2] = sub(vec_smooth[2], vec_temp[2]);
-    vec_smooth[3] = sub(vec_smooth[3], vec_temp[3]);
-    free(vec_raw[0]);
-    free(vec_raw[1]);
-    free(vec_raw[2]);
-    free(vec_raw[3]);
-    free(vec_temp[0]);
-    free(vec_temp[1]);
-    free(vec_temp[2]);
-    free(vec_temp[3]);
-    vec_temp[0] = copy(vec_smooth[0]);
-    vec_temp[1] = copy(vec_smooth[1]);
-    vec_temp[2] = copy(vec_smooth[2]);
-    vec_temp[3] = copy(vec_smooth[3]);
-
-    /* LOW PASS FILTERED DATA
-    print(vec_smooth[0]);
-    print(vec_smooth[1]);
-    print(vec_smooth[2]);
-    print(vec_smooth[3]);
-    */
-
-    // POSITION CALCULATION
-
-    avg = scale( root3( add(4, power3(vec_temp[0]), power3(vec_temp[1]), power3(vec_temp[2]), power3(vec_temp[3]))) , 0.25f);
-    vector **vec_diff = malloc(4 * sizeof(vector*));
-    // NB vec_temp's have been cubed
-    vec_diff[0] = sub(vec_temp[0], avg);
-    vec_diff[1] = sub(vec_temp[1], avg);
-    vec_diff[2] = sub(vec_temp[2], avg);
-    vec_diff[3] = sub(vec_temp[3], avg);
-    free(avg);
-    pos_vec = add(4, vec_diff[0], vec_diff[1], vec_diff[2], vec_diff[3]);
-    free(vec_diff[0]);
-    free(vec_diff[1]);
-    free(vec_diff[2]);
-    free(vec_diff[3]);
-
-    print(pos_vec);
-    
-    free(pos_vec);
-
   }
-  free(vec_smooth[0]);
-  free(vec_smooth[1]);
-  free(vec_smooth[2]);
-  free(vec_smooth[3]);
   free(dev);
 }
