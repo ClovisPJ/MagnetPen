@@ -78,6 +78,9 @@
     #define MAG_CTRL_REG1_OUTPUTRATE_20      0b00010100
     #define MAG_CTRL_REG1_OUTPUTRATE_40      0b00011000
     #define MAG_CTRL_REG1_OUTPUTRATE_80      0b00011100
+  #define MAG_CTRL_REG1_SELFTEST             0b00000001
+    #define MAG_CTRL_REG1_SELFTEST_ON        0b00000001
+    #define MAG_CTRL_REG1_SELFTEST_OFF       0b00000000
 #define MAG_CTRL_REG2                        0x21
   #define MAG_CTRL_REG2_FS                   0b01100000
     #define MAG_CTRL_REG2_FS_16G             0b01100000

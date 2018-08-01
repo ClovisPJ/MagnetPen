@@ -16,7 +16,7 @@ void lsm303c_begin(uint8_t *dev) {
   }
   bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);      // The default
   bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);                   // The default
-  bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_65536); // The default
+  bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_32); // The default
   //bcm2835_spi_chipSelect(BCM2835_SPI_CS0);                      // The default
   //bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);      // the default
   for (int i = 0; dev[i] != '\0'; i++) {

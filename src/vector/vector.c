@@ -82,5 +82,5 @@ vector *copy(vector *vec1) {
 }
 
 void print (vector *vec1) {
-  printf("[%f.6, %f.6, %f.6]\n", vec1->x, vec1->y, vec1->z);
+  printf("[%.3f, %.3f, %.3f]\n", vec1->x, vec1->y, vec1->z);
 }

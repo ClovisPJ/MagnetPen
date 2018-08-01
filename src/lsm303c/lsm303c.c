@@ -38,6 +38,7 @@ void lsm303c_settings(uint8_t *dev) {
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_XYOM, MAG_CTRL_REG1_XYOM_ULTRA);
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_OUTPUTRATE, MAG_CTRL_REG1_OUTPUTRATE_80);
     //lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_TEMP, MAG_CTRL_REG1_TEMP_ON);
+    //lsm303c_set(dev[i], MAG, MAG_CTRL_REG1, MAG_CTRL_REG1_SELFTEST, MAG_CTRL_REG1_SELFTEST_ON);
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG2, MAG_CTRL_REG2_FS, MAG_CTRL_REG2_FS_16G);
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG3, MAG_CTRL_REG3_MODE, MAG_CTRL_REG3_MODE_CONT);
     lsm303c_set(dev[i], MAG, MAG_CTRL_REG4, MAG_CTRL_REG4_ZOM, MAG_CTRL_REG4_ZOM_ULTRA);
@@ -47,13 +48,13 @@ void lsm303c_settings(uint8_t *dev) {
 struct vector* lsm303c_accel_sample(uint8_t dev) {
   struct vector* accel = malloc(sizeof(struct vector));
 
-  while ( lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_ZDA) == 0 ||
-          lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_YDA) == 0 ||
-          lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_XDA) == 0    ) {; }
-
+  while (lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_XDA) == 0) {;}
   int16_t x = (lsm303c_read(dev, ACC, ACC_OUT_X_H) << 8) | lsm303c_read(dev, ACC, ACC_OUT_X_L);
+  while (lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_YDA) == 0) {;}
   int16_t y = (lsm303c_read(dev, ACC, ACC_OUT_Y_H) << 8) | lsm303c_read(dev, ACC, ACC_OUT_Y_L);
+  while (lsm303c_get(dev, ACC, ACC_STATUS, ACC_STATUS_ZDA) == 0) {;}
   int16_t z = (lsm303c_read(dev, ACC, ACC_OUT_Z_H) << 8) | lsm303c_read(dev, ACC, ACC_OUT_Z_L);
+
   accel->x = x * SENSITIVITY_ACC;
   accel->y = y * SENSITIVITY_ACC;
   accel->z = z * SENSITIVITY_ACC;
@@ -63,13 +64,13 @@ struct vector* lsm303c_accel_sample(uint8_t dev) {
 struct vector* lsm303c_mag_sample(uint8_t dev) {
   struct vector* mag = malloc(sizeof(struct vector));
 
-  while ( lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_ZDA) == 0 ||
-          lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_YDA) == 0 ||
-          lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_XDA) == 0    ) {; }
-
+  while (lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_XDA) == 0) {;}
   int16_t x = (lsm303c_read(dev, MAG, MAG_OUT_X_H) << 8) | lsm303c_read(dev, MAG, MAG_OUT_X_L);
+  while (lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_YDA) == 0) {;}
   int16_t y = (lsm303c_read(dev, MAG, MAG_OUT_Y_H) << 8) | lsm303c_read(dev, MAG, MAG_OUT_Y_L);
+  while (lsm303c_get(dev, MAG, MAG_STATUS, MAG_STATUS_ZDA) == 0) {;}
   int16_t z = (lsm303c_read(dev, MAG, MAG_OUT_Z_H) << 8) | lsm303c_read(dev, MAG, MAG_OUT_Z_L);
+
   mag->x = x * SENSITIVITY_MAG;
   mag->y = y * SENSITIVITY_MAG;
   mag->z = z * SENSITIVITY_MAG;
